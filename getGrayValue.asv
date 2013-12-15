@@ -1,0 +1,15 @@
+function [ grayValue , sample] = getGrayValue( curImg, curLandmark, nextLandmark, numOfSamplePixel)
+%GETGRAYVALUE Summary of this function goes here
+%   Detailed explanation goes here
+sample = getProfilePositions( curLandmark, nextLandmark, numOfSamplePixel);
+
+grayValue = zeros(numOfSamplePixel , 1);
+
+for iSample = 1 : numOfSamplePixel
+    x = sample(iSample,2);
+    if x > size(curImg,1) ||
+    grayValue(iSample) = curImg( sample(iSample, 2) , sample(iSample, 1));
+end
+
+end
+

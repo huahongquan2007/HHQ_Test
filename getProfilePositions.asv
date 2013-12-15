@@ -1,0 +1,37 @@
+function [ sample ] = getProfilePositions( v1, v2 , numberOfSample)
+%GETPROFILEPOSITIONS Summary of this function goes here
+%   Detailed explanation goes here
+%   v1 : the profile normals to this point
+
+type2D = true;
+if type2D == false
+dv = v2 - v1;
+
+rotMatrix = [0 1 ; -1 0]; % rotate 90 degree
+
+v = rotMatrix * dv;
+v = v / norm(v); % now v is a unit vector
+
+%sample = [1:numberOfSample; 1:numberOfSample]'; % 15 x 2 matrix to store computed positions;
+sample = zeros(numberOfSample, 2);
+max = floor(numberOfSample/2);
+for i = -max : max
+    cur = v1 +  sqrt(2) * i * v; % position of the current sample % use sqrt(2) to reduce duplicate points
+    sample(i + max + 1 , 1 ) = cur(1);
+    sample(i + max + 1 , 2 ) = cur(2);
+end
+else
+    sample
+end
+sample = round(sample);
+
+%% Visualization
+% close all;
+% hold on;
+% plot( v1(1) , v1(2) , 'b*');
+% plot( v2(1) , v2(2) , 'b*');
+% plot( sample( : , 1) , sample( : , 2) , 'r*');
+
+end
+
+

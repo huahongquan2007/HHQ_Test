@@ -1,0 +1,61 @@
+function [ shapeOutput ] = chooseBestCandidate(curImg, curImgLandmarks , AppearanceData, options )
+%CHOOSEBESTCANDIDATE Summary of this function goes here
+%   Detailed explanation goes here
+
+numOfCandidate = abs( 2*( floor(options.numOfSamplePixel / 2) - floor(options.numOfTestPixel / 2)) + 1 ); % 17 candidates
+
+shapeOutput = curImgLandmarks;
+
+[dx dy] = gradient( curImg );
+graImg = sqrt(dx.*dx + dy.*dy);
+
+figure;
+imagesc(curImg);
+hold all;
+
+for iLandmark = 1 : options.numOfLandmark
+    curLandmark = curImgLandmarks( iLandmark , :)' ;
+    if iLandmark == options.numOfLandmark
+        nextLandmark = curImgLandmarks(  iLandmark - 1, :)';
+    else
+        nextLandmark = curImgLandmarks(  iLandmark + 1, :)';
+    end
+    
+    [grayValue sample] = getGrayValue( curImg, graImg, curLandmark, nextLandmark, options.numOfTestPixel);
+    
+    plot(sample(:,1), sample(:,2), 'g*');
+    
+    distance = zeros(numOfCandidate , 1);
+    Sg = AppearanceData(iLandmark).cov;
+    Gm = AppearanceData(iLandmark).mean;
+    
+    for iCan = 1 : numOfCandidate
+        
+        curCanGrayValue = grayValue(iCan : iCan + options.numOfSamplePixel - 1 );
+        
+        plot(sample(iCan : iCan + options.numOfSamplePixel - 1 ,1), sample(iCan : iCan + options.numOfSamplePixel - 1 ,2), 'b*');
+        %curCan = gradient(curCanGrayValue);
+        curCan = curCanGrayValue;
+        %% Normalization
+        sumGradient = sum(curCan);
+        curCan = curCan / sumGradient;
+        
+        curDist = (curCan - Gm)' * Sg' * (curCan - Gm);
+        
+        distance(iCan) = curDist;
+        
+    end
+    if iLandmark == 1
+        distance
+    end
+    
+    [Y I] = min(distance);
+    %plot( sample(I,1), sample(I,2), 'g*');
+    shapeOutput(iLandmark, :) = sample(I , :);
+    %pause(0.5);
+end
+
+
+
+end
+
